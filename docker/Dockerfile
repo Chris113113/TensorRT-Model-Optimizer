@@ -55,6 +55,7 @@ RUN python -c "import modelopt.torch.quantization.extensions as ext; ext.precomp
 
 # Find and install requirements.txt files for all examples excluding windows
 COPY . TensorRT-Model-Optimizer
+COPY run_checks.sh /workspace/
 RUN rm -rf TensorRT-Model-Optimizer/.git
 RUN find TensorRT-Model-Optimizer/examples -name "requirements.txt" | grep -v "windows" | while read req_file; do \
         echo "Installing from $req_file"; \

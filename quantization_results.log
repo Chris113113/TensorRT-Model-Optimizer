@@ -1,0 +1,4 @@
+--- Quantization Log: Tue Aug  5 17:00:51 UTC 2025 ---
+
+SUCCESS: mistralai/Mixtral-8x7B-Instruct-v0.1 (fp8, hf, TP=1) - Path: /mnt/disks/mlperf-scratch/quantized_models/mistralai--Mixtral-8x7B-Instruct-v0.1_fp8_tp1
+SUCCESS: mistralai/Mixtral-8x7B-Instruct-v0.1 (nvfp4, hf, TP=1) - Path: /mnt/disks/mlperf-scratch/quantized_models/mistralai--Mixtral-8x7B-Instruct-v0.1_nvfp4_tp1

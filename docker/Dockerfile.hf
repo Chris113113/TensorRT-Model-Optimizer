@@ -1,0 +1,2 @@
+FROM modelopt_examples
+COPY run_hf_inference.py /workspace/TensorRT-Model-Optimizer/examples/llm_ptq/
