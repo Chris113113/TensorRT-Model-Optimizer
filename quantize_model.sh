@@ -43,7 +43,7 @@ mkdir -p "$OUTPUT_DIR"
 echo "Quantizing $MODEL_NAME to $QUANT_FORMAT with TP=$TENSOR_PARALLEL..."
 
 # Run the quantization command in the Docker container
-docker run --rm --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
+DOCKER_OUTPUT=$(docker run --rm --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
   -v "$SOURCE_DIR:$SOURCE_DIR" \
   modelopt_examples \
   bash -c "
@@ -55,16 +55,23 @@ docker run --rm --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=6710886
       --quant $QUANT_FORMAT \
       --tp $TENSOR_PARALLEL \
       --export_fmt $EXPORT_FORMAT
-  "
+  " 2>&1)
 
+echo "$DOCKER_OUTPUT"
 echo "Quantization complete."
 
 # Rename the output directory for clarity
-LATEST_DIR=$(find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)
-if [ -z "$LATEST_DIR" ]; then
-    echo "Error: Could not find any recently created model directory in $OUTPUT_DIR"
-    exit 1
+LATEST_DIR=$(echo "$DOCKER_OUTPUT" | grep "Quantized model exported to" | sed -n 's/.*Quantized model exported to :*//p' | xargs)
+
+if [ -z "$LATEST_DIR" ] || [ ! -d "$LATEST_DIR" ]; then
+    echo "Warning: Could not determine output directory from docker output. Falling back to finding the most recent directory."
+    LATEST_DIR=$(find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)
+    if [ -z "$LATEST_DIR" ]; then
+        echo "Error: Could not find any recently created model directory in $OUTPUT_DIR"
+        exit 1
+    fi
 fi
+
 
 RENAMED_DIR="$OUTPUT_DIR/$(echo "$MODEL_NAME" | sed 's#/#--#g')_${QUANT_FORMAT}_tp${TENSOR_PARALLEL}"
 if [ -d "$RENAMED_DIR" ]; then
